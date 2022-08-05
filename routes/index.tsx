@@ -30,9 +30,9 @@ const files = [
 
 export const handler = {
   async GET(_: Request, context: HandlerContext) {
-    const works: IWork[] = files
-      .map(file => {
-        const fileContent = Deno.readTextFileSync(join("./static/content/work", file));
+    const formattedWorks = await Promise.all(files
+      .map(async (file) => {
+        const fileContent = await Deno.readTextFile(join("./static/content/work", file));
         const { data, content } = parse(fileContent) as { data: IWorkHeader, content: string};
         const renderedContent = render(content);
 
@@ -42,7 +42,9 @@ export const handler = {
           createdAt: data.createdAt,
           content: renderedContent,
         }
-      })
+      }))
+
+    const works = formattedWorks
       .sort((a, b) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
