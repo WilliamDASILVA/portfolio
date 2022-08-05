@@ -28,25 +28,25 @@ const files = [
   "lfl-days.md",
 ]
 
-const works: IWork[] = files
-  .map(file => {
-    const fileContent = Deno.readTextFileSync(join("./static/content/work", file));
-    const { data, content } = parse(fileContent) as { data: IWorkHeader, content: string};
-    const renderedContent = render(content);
-
-    return {
-      title: data.title,
-      tags: data.tags,
-      createdAt: data.createdAt,
-      content: renderedContent,
-    }
-  })
-  .sort((a, b) => {
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-  });
-
 export const handler = {
   async GET(_: Request, context: HandlerContext) {
+    const works: IWork[] = files
+      .map(file => {
+        const fileContent = Deno.readTextFileSync(join("./static/content/work", file));
+        const { data, content } = parse(fileContent) as { data: IWorkHeader, content: string};
+        const renderedContent = render(content);
+
+        return {
+          title: data.title,
+          tags: data.tags,
+          createdAt: data.createdAt,
+          content: renderedContent,
+        }
+      })
+      .sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+
     return await context.render({ works });
   }
 }
