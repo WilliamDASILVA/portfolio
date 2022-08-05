@@ -1,11 +1,5 @@
-# fresh project
+# Portfolio
 
-### Usage
+Very simple portfolio site using Deno and Fresh framework, with content based on Markdown files.
 
-Start the project:
-
-```
-deno task start
-```
-
-This will watch the project directory and restart as necessary.
+Deployed on https://william-portfolio.deno.dev/
