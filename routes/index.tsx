@@ -9,6 +9,7 @@ import { asset, Head } from "https://deno.land/x/fresh@1.0.2/runtime.ts";
 
 import WorkItem from "./../components/WorkItem.tsx";
 import Dots from "./../islands/Dots.tsx";
+import { join } from "https://deno.land/std@0.150.0/path/mod.ts";
 
 interface IWorkHeader {
   title: string;
@@ -29,7 +30,7 @@ const files = [
 
 const works: IWork[] = files
   .map(file => {
-    const fileContent = Deno.readTextFileSync(Deno.realPathSync("./content/work/" + file));
+    const fileContent = Deno.readTextFileSync(join("./static/content/work", file));
     const { data, content } = parse(fileContent) as { data: IWorkHeader, content: string};
     const renderedContent = render(content);
 
