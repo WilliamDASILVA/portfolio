@@ -3,13 +3,12 @@ import { Fragment, h } from "preact";
 import { tw } from "@twind";
 import { PageProps, HandlerContext } from "$fresh/server.ts";
 import { render } from "gfm";
+import { parse } from "frontmatter";
+import { asset, Head } from "$fresh/runtime.ts";
+import { join } from "path";
 
-import { parse } from "https://deno.land/x/frontmatter@v0.1.5/mod.ts";
-import { asset, Head } from "https://deno.land/x/fresh@1.0.2/runtime.ts";
-
-import WorkItem from "./../components/WorkItem.tsx";
-import Dots from "./../islands/Dots.tsx";
-import { join } from "https://deno.land/std@0.150.0/path/mod.ts";
+import WorkItem from "@/components/WorkItem.tsx";
+import Dots from "@/islands/Dots.tsx";
 
 interface IWorkHeader {
   title: string;
