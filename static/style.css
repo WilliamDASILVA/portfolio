@@ -1,0 +1,17 @@
+body {
+  background: white;
+}
+
+.markdown p,
+.markdown ul {
+  margin-bottom: 1rem;
+}
+
+.markdown ul {
+  list-style: disc;
+  margin-left: 1rem;
+}
+
+.markdown img {
+  border-radius: 4px;
+}
