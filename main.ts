@@ -6,9 +6,12 @@
 
 import { InnerRenderFunction, RenderContext, start } from "$fresh/server.ts";
 import manifest from "./fresh.gen.ts";
+import { config as dotEnvConfig } from 'https://deno.land/x/dotenv@v1.0.1/mod.ts';
 
 import { config, setup } from "@twind";
 import { virtualSheet } from "twind/sheets";
+
+dotEnvConfig({ export: true });
 
 const sheet = virtualSheet();
 sheet.reset();

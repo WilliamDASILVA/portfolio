@@ -1,58 +1,42 @@
 /** @jsx h */
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { Fragment, h } from "preact";
 import { tw } from "@twind";
+import StoryblokClient from "storyblok-js-client";
 import { PageProps, HandlerContext } from "$fresh/server.ts";
-import { render } from "gfm";
-import { parse } from "frontmatter";
 import { asset, Head } from "$fresh/runtime.ts";
-import { join } from "path";
 
-import WorkItem from "@/components/WorkItem.tsx";
+import ProjectItem from "@/components/ProjectItem.tsx";
 import Dots from "@/islands/Dots.tsx";
-
-interface IWorkHeader {
-  title: string;
-  tags: string[];
-  createdAt: string;
-}
-
-interface IWork {
-  title: string;
-  tags: string[];
-  content: string;
-}
-
-const files = [
-  "lurking.md",
-  "lfl-days.md",
-]
+import { IStoryblokStory } from "../types/storyblok.ts";
+import { IWeek } from "../types/project.ts";
 
 export const handler = {
   async GET(_: Request, context: HandlerContext) {
-    const formattedWorks = await Promise.all(files
-      .map(async (file) => {
-        const fileContent = await Deno.readTextFile(join("./static/content/work", file));
-        const { data, content } = parse(fileContent) as { data: IWorkHeader, content: string};
-        const renderedContent = render(content);
+    const client = new StoryblokClient({
+      accessToken: Deno.env.get("STORYBLOK_ACCESS_TOKEN"),
+    });
 
-        return {
-          title: data.title,
-          tags: data.tags,
-          createdAt: data.createdAt,
-          content: renderedContent,
-        }
-      }))
+    const weeks = [];
+    const stories = await client.getStories({
+      starts_with: "weeks/"
+    });
 
-    const works = formattedWorks
-      .sort((a, b) => {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      });
+    for (const week of stories.data.stories) {
+      const formattedWeek = week.content;
+      const projects = await client.getStories({
+        by_uuids: week.content.projects.join(",")
+      })
 
-    return await context.render({ works });
+      formattedWeek.projects = projects.data.stories;
+      weeks.push(formattedWeek);
+    }
+
+    return await context.render({ weeks });
   }
 }
 
-export default function Home(props: PageProps<{ works: IWork[] }>) {
+export default function Home(props: PageProps<{ weeks: IWeek[] }>) {
   return (
     <Fragment>
       <Head>
@@ -80,12 +64,24 @@ export default function Home(props: PageProps<{ works: IWork[] }>) {
 
         <hr class={tw`mb-4`} />
 
-        {props.data.works.map(work => {
-          return <WorkItem
-            title={work.title}
-            tags={work.tags}
-            content={work.content}
-          />
+        {props.data.weeks.map(week => {
+          const { title, projects } = week;
+
+          return (<div>
+            <h2 class={tw`text-2xl font-medium`}>{title}</h2>
+
+            {projects.map(project => {
+              const { title, tags, description, image } = project.content;
+
+              return (<ProjectItem
+                key={project.id}
+                title={title}
+                tags={tags}
+                description={description}
+                image={image}
+              />)
+            })}
+          </div>)
         })}
       </div>
     </Fragment>
