@@ -23,20 +23,25 @@ export const handler = {
     });
 
     for (const week of stories.data.stories) {
-      const formattedWeek = week.content;
+      const formattedWeek = week;
       const projects = await client.getStories({
         by_uuids: week.content.projects.join(",")
       })
 
-      formattedWeek.projects = projects.data.stories;
+      formattedWeek.content.projects = projects.data.stories;
       weeks.push(formattedWeek);
     }
 
-    return await context.render({ weeks });
+    return await context.render({ weeks: (weeks as unknown as IStoryblokStory<IWeek>[]).sort((a, b) => {
+      const aDate = new Date(a.first_published_at);
+      const bDate = new Date(b.first_published_at);
+
+      return aDate.getTime() - bDate.getTime();
+    }).reverse() });
   }
 }
 
-export default function Home(props: PageProps<{ weeks: IWeek[] }>) {
+export default function Home(props: PageProps<{ weeks: IStoryblokStory<IWeek>[] }>) {
   return (
     <Fragment>
       <Head>
@@ -65,10 +70,10 @@ export default function Home(props: PageProps<{ weeks: IWeek[] }>) {
         <hr class={tw`mb-4`} />
 
         {props.data.weeks.map(week => {
-          const { title, projects } = week;
+          const { title, projects } = week.content;
 
           return (<div>
-            <h2 class={tw`text-2xl font-medium`}>{title}</h2>
+            <h2 class={tw`text-3xl font-medium my-3`}>{title}</h2>
 
             {projects.map(project => {
               const { title, tags, description, image } = project.content;

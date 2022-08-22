@@ -11,4 +11,5 @@ export interface IStoryblokStory<T> {
   slug: string,
   published_at: string,
   created_at: string,
+  first_published_at: string,
 }
